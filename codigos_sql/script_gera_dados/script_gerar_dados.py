@@ -8,8 +8,8 @@ fake = Faker('pt_BR')
 
 # --- CONFIGURAÇÕES ---
 QTD_ESTUDANTES = 1500
-QTD_EMPRESAS = 300
-QTD_PROJETOS = 1000  # Aumentei um pouco para testar a variedade
+QTD_EMPRESAS = 400
+QTD_PROJETOS = 1000
 
 DOMINIOS_UNIVERSIDADES = {
     'USP': 'usp.br', 'UNICAMP': 'unicamp.br', 'UNESP': 'unesp.br',
@@ -36,8 +36,6 @@ SETORES = [
     'Logística', 'Construção', 'Alimentação', 'Serviços', 'Marketing'
 ]
 
-# --- LISTAS EXPANDIDAS PARA PROJETOS ---
-
 PREFIXOS = [
     'Desenvolvimento de', 'Criação de', 'Manutenção de', 'Consultoria em', 
     'Automação de', 'Otimização de', 'Migração de', 'Refatoração de', 
@@ -55,7 +53,7 @@ TIPOS = [
 ]
 
 COMPLEMENTOS = [
-    '', '', '', # Chances de não ter complemento
+    '', '', '', 
     'para Varejo', 'com Integração AWS', 'para Uso Interno', 'versão 2.0',
     'com React e Node', 'focado em SEO', 'para Startup', 'Legacy', 
     'com Pagamento Online', 'Automatizado', 'Responsivo'
@@ -81,11 +79,15 @@ def gerar_email_estudante(nome_completo, universidade):
 # --- GERAÇÃO DO SQL ---
 
 def gerar_sql():
-    print("Gerando dados v4 (Mais variedade)... Aguarde.")
+    print("Gerando dados sem duplicatas de CPF/CNPJ... Aguarde.")
     
-    arquivo = open("insert_dados_v4.sql", "w", encoding="utf-8")
+    buffer_projetos = []
+    buffer_habilidades_proj = []
+    buffer_membros_proj = []
     
-    arquivo.write("-- Script gerado via Python (Faker + Variedade de Titulos)\n")
+    arquivo = open("insert_dados_v6.sql", "w", encoding="utf-8")
+    
+    arquivo.write("-- Script gerado via Python v6 (Sem Duplicatas)\n")
     arquivo.write("TRUNCATE TABLE Habilidades_projeto, Membros_projeto, Habilidades_estudante, Projeto, Empresa, Habilidade, Estudante RESTART IDENTITY CASCADE;\n\n")
 
     # 1. HABILIDADES
@@ -96,10 +98,17 @@ def gerar_sql():
 
     # 2. ESTUDANTES
     arquivo.write("-- 2. ESTUDANTES\n")
-    lista_cpfs_estudantes = []
+    lista_cpfs_estudantes = [] # Lista para controle de duplicidade
     
     for _ in range(QTD_ESTUDANTES):
-        cpf = fake.cpf()
+        # --- CORREÇÃO: Loop para garantir CPF único ---
+        while True:
+            cpf = fake.cpf()
+            if cpf not in lista_cpfs_estudantes:
+                lista_cpfs_estudantes.append(cpf)
+                break
+        # -----------------------------------------------
+
         nome_sexo = random.choice(['M', 'F'])
         if nome_sexo == 'M':
             nome_real = f"{fake.first_name_male()} {fake.last_name()}"
@@ -115,8 +124,6 @@ def gerar_sql():
         data_nasc = fake.date_of_birth(minimum_age=18, maximum_age=30)
         curso = random.choice(CURSOS)
         semestre = random.randint(1, 8)
-        
-        lista_cpfs_estudantes.append(cpf)
         
         sql = f"INSERT INTO Estudante (cpf, nome, email, senha, data_nascimento, universidade, curso, semestre) VALUES ('{cpf}', '{nome}', '{email}', '{senha}', '{data_nasc}', '{univ}', '{curso}', {semestre});\n"
         arquivo.write(sql)
@@ -135,12 +142,20 @@ def gerar_sql():
     # 4. EMPRESAS
     arquivo.write("-- 4. EMPRESAS\n")
     lista_nomes_empresas = []
+    lista_cnpjs_empresas = [] # Controle de CNPJ único
     
     for _ in range(QTD_EMPRESAS):
         nome_base = fake.company()
         nome_empresa = esc(nome_base + " " + fake.company_suffix())
-        cnpj = fake.cnpj()
         
+        # --- CORREÇÃO: Loop para garantir CNPJ único ---
+        while True:
+            cnpj = fake.cnpj()
+            if cnpj not in lista_cnpjs_empresas:
+                lista_cnpjs_empresas.append(cnpj)
+                break
+        # ------------------------------------------------
+
         dominio_empresa = remover_acentos(nome_base.split()[0]).lower() + ".com.br"
         email = f"contato@{dominio_empresa}"
         
@@ -152,41 +167,31 @@ def gerar_sql():
         descricao = esc(fake.catch_phrase())
         porte = random.choice(['pequeno', 'médio', 'grande'])
         
+        # Verifica duplicidade de nome também (pois é PK)
         if nome_empresa not in lista_nomes_empresas:
             lista_nomes_empresas.append(nome_empresa)
             sql = f"INSERT INTO Empresa (nome, cnpj, email, senha, localizacao, setor, descricao, porte) VALUES ('{nome_empresa}', '{cnpj}', '{email}', '{senha}', '{local}', '{setor}', '{descricao}', '{porte}');\n"
             arquivo.write(sql)
     arquivo.write("\n")
 
-    # 5. PROJETOS
-    arquivo.write("-- 5. PROJETOS\n")
+    # --- PROCESSAMENTO DOS PROJETOS ---
     projeto_id_counter = 1
     
     for _ in range(QTD_PROJETOS):
         empresa = random.choice(lista_nomes_empresas)
         
-        # --- Lógica de Título Mais Rico ---
         prefixo = random.choice(PREFIXOS)
         tipo = random.choice(TIPOS)
         complemento = random.choice(COMPLEMENTOS)
+        titulo = esc(f"{prefixo} {tipo} {complemento}".strip())
         
-        titulo_bruto = f"{prefixo} {tipo} {complemento}".strip()
-        titulo = esc(titulo_bruto)
-        
-        descricao = esc(fake.paragraph(nb_sentences=3))
         complexidade = random.choice(['BAIXA', 'MEDIA', 'ALTA'])
         
-        # Tenta adivinhar a modalidade baseado no tipo para ficar coerente
-        if 'App' in tipo:
-            modalidade = 'Mobile'
-        elif 'Dados' in tipo or 'BI' in tipo or 'Scraper' in tipo:
-            modalidade = 'Data Science'
-        elif 'Design' in tipo or 'Interface' in tipo:
-            modalidade = 'Design'
-        elif 'API' in tipo or 'Microsserviços' in tipo:
-            modalidade = 'Backend'
-        else:
-            modalidade = 'Web' # Default
+        if 'App' in tipo: modalidade = 'Mobile'
+        elif any(x in tipo for x in ['Dados', 'BI', 'Scraper']): modalidade = 'Data Science'
+        elif any(x in tipo for x in ['Design', 'Interface']): modalidade = 'Design'
+        elif any(x in tipo for x in ['API', 'Microsserviços']): modalidade = 'Backend'
+        else: modalidade = 'Web'
         
         orcamento = round(random.uniform(1200, 18000), 2)
         orcamento_estudante = round(orcamento * 0.6, 2)
@@ -197,16 +202,17 @@ def gerar_sql():
         estados = ['ANALISE', 'BUSCANDO_EQUIPE', 'EM_ANDAMENTO', 'REVISAO_QA', 'CONCLUIDO', 'CANCELADO']
         estado = random.choices(estados, weights=[1, 2, 4, 2, 3, 1], k=1)[0]
         
-        sql = f"INSERT INTO Projeto (empresa_nome, titulo, descricao, complexidade, modalidade, orcamento_total, orcamento_estudantes, data_inicio, prazo_entrega, estado) VALUES ('{empresa}', '{titulo}', '{descricao}', '{complexidade}', '{modalidade}', {orcamento}, {orcamento_estudante}, '{data_inicio}', '{prazo}', '{estado}');\n"
-        arquivo.write(sql)
+        sql_proj = f"INSERT INTO Projeto (empresa_nome, titulo, descricao, complexidade, modalidade, orcamento_total, orcamento_estudantes, data_inicio, prazo_entrega, estado) VALUES ('{empresa}', '{titulo}', ' ', '{complexidade}', '{modalidade}', {orcamento}, {orcamento_estudante}, '{data_inicio}', '{prazo}', '{estado}');\n"
+        buffer_projetos.append(sql_proj)
 
-        # 6. HABILIDADES DO PROJETO
+        # Skills do projeto
         qtd_skills_req = random.randint(1, 4)
         skills_req = random.sample(range(1, len(HABILIDADES_LISTA) + 1), qtd_skills_req)
         for sk in skills_req:
-            arquivo.write(f"INSERT INTO Habilidades_projeto (id_projeto, id_habilidade) VALUES ({projeto_id_counter}, {sk});\n")
+            sql_hab = f"INSERT INTO Habilidades_projeto (id_projeto, id_habilidade) VALUES ({projeto_id_counter}, {sk});\n"
+            buffer_habilidades_proj.append(sql_hab)
 
-        # 7. MEMBROS DO PROJETO
+        # Membros do projeto
         if estado not in ['ANALISE', 'BUSCANDO_EQUIPE', 'CANCELADO']:
             qtd_membros = random.randint(1, 4)
             membros = random.sample(lista_cpfs_estudantes, qtd_membros)
@@ -214,13 +220,26 @@ def gerar_sql():
             for membro_cpf in membros:
                 papel = random.choice(papeis)
                 status_membro = 'ATIVO' if estado != 'CONCLUIDO' else 'CONCLUIDO'
-                arquivo.write(f"INSERT INTO Membros_projeto (projeto_id, estudante_cpf, papel_no_projeto, estado) VALUES ({projeto_id_counter}, '{membro_cpf}', '{papel}', '{status_membro}');\n")
+                sql_memb = f"INSERT INTO Membros_projeto (projeto_id, estudante_cpf, papel_no_projeto, estado) VALUES ({projeto_id_counter}, '{membro_cpf}', '{papel}', '{status_membro}');\n"
+                buffer_membros_proj.append(sql_memb)
         
         projeto_id_counter += 1
-        
+
+    # --- ESCRITA FINAL ---
+    arquivo.write("-- 5. PROJETOS (TODOS OS INSERTS)\n")
+    for linha in buffer_projetos: arquivo.write(linha)
     arquivo.write("\n")
+
+    arquivo.write("-- 6. HABILIDADES DOS PROJETOS (TODOS OS INSERTS)\n")
+    for linha in buffer_habilidades_proj: arquivo.write(linha)
+    arquivo.write("\n")
+
+    arquivo.write("-- 7. MEMBROS DOS PROJETOS (TODOS OS INSERTS)\n")
+    for linha in buffer_membros_proj: arquivo.write(linha)
+    arquivo.write("\n")
+
     arquivo.close()
-    print("Sucesso! Arquivo 'insert_dados_v4.sql' gerado com títulos ricos.")
+    print("Sucesso! Arquivo 'insert_dados_v6.sql' gerado sem duplicatas.")
 
 if __name__ == "__main__":
     gerar_sql()
