@@ -29,7 +29,21 @@ class Estudante:
                 SELECT ARRAY_AGG(mp.papel_no_projeto)
                 FROM Membros_projeto mp
                 WHERE mp.estudante_cpf = e.cpf
-            ) AS papeis_projetos
+            ) AS papeis_projetos,
+
+            (
+                SELECT JSON_AGG(
+                    JSON_BUILD_OBJECT(
+                        'projeto_id', p.id,
+                        'titulo', p.titulo,
+                        'empresa', p.empresa_nome,
+                        'estado', p.estado
+                )
+            )
+                FROM Membros_projeto mp
+                JOIN Projeto p ON p.id = mp.projeto_id
+                WHERE mp.estudante_cpf = e.cpf
+            ) AS projetos
 
         FROM Estudante e
         """
@@ -69,18 +83,18 @@ class Estudante:
 
         data = self.db.execute_select_all(query, params)
 
-        # ---- FORMATAÇÃO FINAL ----
         for item in data:
-            # Data no formato YYYY-MM-DD
             if isinstance(item["data_nascimento"], (date,)):
                 item["data_nascimento"] = item["data_nascimento"].isoformat()
 
-            # Arrays vazios → []
             if item["habilidades"] is None:
                 item["habilidades"] = []
 
             if item["papeis_projetos"] is None:
                 item["papeis_projetos"] = []
+
+            if item["projetos"] is None:
+                item["projetos"] = []
 
         return data
 
@@ -89,3 +103,8 @@ class Estudante:
         query = "SELECT COUNT(*) AS total FROM Estudante;"
         resultado = self.db.execute_select_one(query)
         return resultado["total"] if resultado else 0
+    
+    def count_cursos(self):
+        query = "SELECT COUNT(DISTINCT curso) AS total_cursos FROM Estudante;"
+        resultado = self.db.execute_select_one(query)
+        return resultado["total_cursos"] if resultado else 0

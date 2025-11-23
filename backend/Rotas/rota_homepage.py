@@ -11,10 +11,12 @@ def dados_homepage():
 
     n_estudante = Estudantes.count_total()
     n_empresas  = Empresas.get_numero_empresas()
+    n_cursos    = Estudantes.count_cursos()
 
     dados_homepage = {
         "num_alunos": n_estudante,
         "num_empresas":n_empresas,
+        "num_cursos":n_cursos,
     }
 
     return jsonify(dados_homepage), 200
