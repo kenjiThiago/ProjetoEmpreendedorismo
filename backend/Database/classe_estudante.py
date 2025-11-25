@@ -6,7 +6,7 @@ class Estudante:
         self.db = db_provider
 
     def get_estudantes(self, cpf=None, nome=None, email=None,senha=None,data_nascimento=None,universidade=None, curso=None, semestre=None):
-        
+
         query = """
         SELECT
             e.cpf,
@@ -103,8 +103,35 @@ class Estudante:
         query = "SELECT COUNT(*) AS total FROM Estudante;"
         resultado = self.db.execute_select_one(query)
         return resultado["total"] if resultado else 0
-    
-    def count_cursos(self):
-        query = "SELECT COUNT(DISTINCT curso) AS total_cursos FROM Estudante;"
+
+    def count_projetos(self):
+        query = "SELECT COUNT(DISTINCT projeto) AS total_projetos FROM Estudante;"
         resultado = self.db.execute_select_one(query)
-        return resultado["total_cursos"] if resultado else 0
+        return resultado["total_projetos"] if resultado else 0
+
+    def buscar_por_email(self, email):
+        query = "SELECT * FROM estudante WHERE email = %s"
+        self.db.cursor.execute(query, (email,))
+        result = self.db.cursor.fetchone()
+
+        if result:
+            columns = [desc[0] for desc in self.db.cursor.description]
+            return dict(zip(columns, result))
+        return None
+
+    def inserir_estudante(self, cpf, nome, email, senha, data_nascimento, universidade, curso, semestre):
+        query = """
+        INSERT INTO estudante (cpf, nome, email, senha, data_nascimento, universidade, curso, semestre)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        try:
+            self.db.cursor.execute(query, (
+                cpf, nome, email, senha, data_nascimento, universidade, curso, semestre
+            ))
+            self.db.conn.commit()
+            return True
+        except Exception as e:
+            print("Erro ao inserir estudante:", e)
+            self.db.conn.rollback()
+            return False
+

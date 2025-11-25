@@ -1,4 +1,4 @@
-from flask import Blueprint, request, Response
+from flask import Blueprint, request, Response, jsonify
 import json
 from Database.classe_estudante import Estudante
 
@@ -36,38 +36,32 @@ def get_estudantes():
 
 
 
-#@aluno_blueprint.route("/alunos", methods=["POST"])
-#def criar_aluno():
-#    data = request.get_json()
-#
-#    cpf = data.get("cpf")
-#    nome = data.get("nome")
-#    email = data.get("email")
-#    senha = data.get("password")
-#    data_nascimento = data.get("birthDate")  # Formato: 'YYYY-MM-DD'
-#    plano = data.get("plano")  # Deve ser 'Pago' ou 'Grátis'
-#    forma_pagamento = data.get("paymentMethod")  # Débito, Crédito ou Pix
-#
-#    if plano not in ["Pago", "Grátis"]:
-#        return jsonify({"erro": "Plano inválido"}), 400
-#    if forma_pagamento not in ["Débito", "Crédito", "Pix"]:
-#        return jsonify({"erro": "Forma de pagamento inválida"}), 400
-#
-#    aluno_model = Aluno()
-#    sucesso = aluno_model.inserir_aluno(
-#        cpf, nome, email, senha, data_nascimento, plano, forma_pagamento
-#    )
-#
-#    if sucesso:
-#        return jsonify({
-#            "mensagem": "Login bem-sucedido",
-#            "aluno": {
-#                "cpf": cpf,
-#                "nome": nome,
-#                "email": email,
-#                "plano": plano
-#            }
-#        }), 201
-#    else:
-#        return jsonify({"erro": "Erro ao inserir aluno"}), 500
-#
+@estudante_blueprint.route("/alunos", methods=["POST"])
+def criar_estudante():
+    data = request.get_json()
+
+    cpf = data.get("cpf")
+    nome = data.get("nome")
+    email = data.get("email")
+    senha = data.get("password")
+    data_nascimento = data.get("birthDate")  # Formato: 'YYYY-MM-DD'
+    universidade = data.get("universidade")
+    curso = data.get("curso")
+    semestre = data.get("semestre")
+
+    Estudantes = Estudante()
+    sucesso = Estudantes.inserir_estudante(
+        cpf, nome, email, senha, data_nascimento, universidade, curso, semestre
+    )
+
+    if sucesso:
+        return jsonify({
+            "mensagem": "Login bem-sucedido",
+            "estudante": {
+                "cpf": cpf,
+                "nome": nome,
+                "email": email,
+            }
+        }), 201
+    else:
+        return jsonify({"erro": "Erro ao inserir estudante"}), 500
