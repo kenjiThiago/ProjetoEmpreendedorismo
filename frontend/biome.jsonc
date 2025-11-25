@@ -1,0 +1,27 @@
+{
+    "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+    "extends": [
+        "ultracite/core",
+        "ultracite/react"
+    ],
+    "css": {
+        "linter": {
+            "enabled": false
+        }
+    },
+    "javascript": {
+        "formatter": {
+            "semicolons": "asNeeded",
+            "quoteStyle": "double"
+        }
+    },
+    "linter": {
+        "rules": {
+            "style": {
+                "useConsistentTypeDefinitions": {
+                    "level": "off"
+                }
+            }
+        }
+    }
+}
