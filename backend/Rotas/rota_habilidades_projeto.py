@@ -18,7 +18,6 @@ def get_habilidades_projeto():
     habilidades_model = HabilidadesProjeto()
     habilidades = habilidades_model.get_habilidades_por_projeto(projeto_id)
 
-    # Monta o JSON agrupado por projeto
     response_data = {
         "projeto_id": projeto_id,
         "habilidades": [

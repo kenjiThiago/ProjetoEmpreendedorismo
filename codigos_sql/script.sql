@@ -10,13 +10,11 @@ CREATE TABLE Estudante (
     semestre        INT
 );
 
--- Tabela Habilidade
 CREATE TABLE Habilidade (
     id              SERIAL          PRIMARY KEY,
     nome            VARCHAR(100)    UNIQUE NOT NULL
 );
 
--- 5. Habilidades do Estudante (N:N)
 CREATE TABLE Habilidades_estudante (
     estudante_cpf       VARCHAR(14)     REFERENCES Estudante(cpf) ON DELETE CASCADE,
     habilidade_id       INT     REFERENCES Habilidade(id) ON DELETE CASCADE,
@@ -25,7 +23,6 @@ CREATE TABLE Habilidades_estudante (
 );
 
 
--- Tabela Empresa (cliente)
 CREATE TABLE Empresa (
     nome        VARCHAR(100)    PRIMARY KEY,
     cnpj        VARCHAR(20)     UNIQUE NOT NULL,
@@ -34,10 +31,9 @@ CREATE TABLE Empresa (
     localizacao VARCHAR(100),
     setor       VARCHAR(50),
     descricao   TEXT,
-    porte       VARCHAR(50)    -- pequeno, médio ou grande
+    porte       VARCHAR(50)    
 );
 
--- Tabela Projetos
 CREATE TABLE Projeto (
     id                      SERIAL          PRIMARY KEY,
     empresa_nome            VARCHAR(100)    REFERENCES Empresa(nome),
@@ -45,24 +41,22 @@ CREATE TABLE Projeto (
     descricao               TEXT,
     complexidade            VARCHAR(50)     CHECK (complexidade IN ('BAIXA', 'MEDIA', 'ALTA')),
     modalidade              VARCHAR(50),
-    orcamento_total         DECIMAL(10, 2), -- Quanto a empresa paga
-    orcamento_estudantes    DECIMAL(10, 2), -- Quanto será repassado aos alunos
+    orcamento_total         DECIMAL(10, 2), 
+    orcamento_estudantes    DECIMAL(10, 2), 
     data_inicio             DATE,
     prazo_entrega           DATE,
     estado VARCHAR(20) DEFAULT 'ANALISE' 
         CHECK (estado IN ('ANALISE', 'BUSCANDO_EQUIPE', 'EM_ANDAMENTO', 'REVISAO_QA', 'CONCLUIDO', 'CANCELADO'))
 );
 
--- 7. Membros do Projeto (A Squad)
 CREATE TABLE Membros_projeto (
     id                  SERIAL PRIMARY KEY,
     projeto_id          INT REFERENCES Projeto(id) ON DELETE CASCADE,
     estudante_cpf       VARCHAR(14) REFERENCES Estudante(cpf),
-    papel_no_projeto    VARCHAR(50) NOT NULL, -- Ex: 'Dev Front-end', 'Líder Técnico'
-    estado              VARCHAR(20) DEFAULT 'ATIVO' CHECK (estado IN ('ATIVO', 'REMOVIDO', 'CONCLUIDO'))
+    papel_no_projeto    VARCHAR(50) NOT NULL,
+    estado              VARCHAR(20) DEFAULT 'ATIVO' CHECK (estado IN ('ATIVO', 'REMOVIDO', 'CONCLUIDO', 'EM ANALISE'))
 );
 
---Tabela Habilidade_Vaga
 CREATE TABLE Habilidades_projeto (
     id_projeto      SERIAL REFERENCES Projeto(id),
     id_habilidade   SERIAL REFERENCES Habilidade(id),

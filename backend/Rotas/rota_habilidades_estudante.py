@@ -11,7 +11,7 @@ def get_habilidades_estudante():
 
     he_model = HabilidadesEstudante()
 
-    # Se o usuário passou estudante_cpf, retorna habilidades desse estudante
+    #Se a pessoa passou estudante_cpf, retorna habilidades desse estudante
     if estudante_cpf:
         habilidades = he_model.get_habilidades_por_estudante(estudante_cpf)
         return Response(
@@ -19,7 +19,7 @@ def get_habilidades_estudante():
             mimetype="application/json"
         )
 
-    # Se o usuário passou habilidade_id, retorna estudantes que possuem essa habilidade
+    # Se a pesoa passou habilidade_id, retorna estudantes que possuem essa habilidade
     elif habilidade_id:
         try:
             habilidade_id = int(habilidade_id)
@@ -36,7 +36,7 @@ def get_habilidades_estudante():
             mimetype="application/json"
         )
 
-    # Se nenhum parâmetro foi passado, retorna erro
+    # Se nao passar paramentro, retorna erro
     else:
         return Response(
             json.dumps({"error": "Informe estudante_cpf ou habilidade_id"}, ensure_ascii=False, indent=4),

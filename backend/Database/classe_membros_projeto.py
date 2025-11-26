@@ -52,3 +52,18 @@ class MembrosProjeto:
         query = "SELECT COUNT(*) as count FROM Membros_projeto"
         result = self.db.execute_select_one(query)
         return result['count']
+    
+
+    def adicionar_membro(self, projeto_id, estudante_cpf, papel_no_projeto, estado="EM ANALISE"):
+        query = """
+        INSERT INTO Membros_projeto (projeto_id, estudante_cpf, papel_no_projeto, estado)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id, projeto_id, estudante_cpf, papel_no_projeto, estado;
+        """
+
+        parametros = (projeto_id, estudante_cpf, papel_no_projeto, estado)
+
+        resultado = self.db.execute_select_one(query, parametros)
+        return resultado
+
+

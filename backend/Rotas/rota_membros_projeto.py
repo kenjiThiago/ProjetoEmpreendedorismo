@@ -21,7 +21,6 @@ def get_membros_projeto():
         estado=estado
     )
 
-    # Agrupa membros por projeto
     projetos_dict = {}
     for m in membros:
         pid = m["projeto_id"]
@@ -33,9 +32,7 @@ def get_membros_projeto():
                 "estado": m["projeto_estado"],
                 "membros": []
             }
-        # Adiciona membro
         projetos_dict[pid]["membros"].append({
-          #  "id": m["membro_id"],
             "estudante_cpf": m["estudante_cpf"],
             "nome": m["estudante_nome"],
             "email": m["estudante_email"],
@@ -46,10 +43,8 @@ def get_membros_projeto():
             "estado": m["membro_estado"]
         })
 
-    # Converte para lista
     response_list = list(projetos_dict.values())
 
-    # Função para converter Decimal e date
     def convert(obj):
         if isinstance(obj, list):
             return [convert(i) for i in obj]

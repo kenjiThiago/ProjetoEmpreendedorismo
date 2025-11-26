@@ -8,7 +8,6 @@ projeto_blueprint = Blueprint("projeto", __name__)
 
 @projeto_blueprint.route("/projetos", methods=["GET"])
 def get_projetos():
-    # Captura dos parâmetros da query
     id = request.args.get("id")
     id = int(id) if id else None
 
@@ -28,7 +27,6 @@ def get_projetos():
     prazo_entrega = request.args.get("prazo_entrega", "")
     estado = request.args.get("estado", "")
 
-    # Busca os projetos no banco
     projetos_model = Projeto()
     projetos = projetos_model.get_projetos(
         id=id,
@@ -51,7 +49,6 @@ def get_projetos():
         "total_projetos": total_projetos
     }
 
-    # Função para converter Decimal e date
     def convert_types(obj):
         if isinstance(obj, list):
             return [convert_types(item) for item in obj]
