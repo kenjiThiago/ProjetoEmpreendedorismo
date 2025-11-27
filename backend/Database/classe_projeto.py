@@ -82,3 +82,61 @@ class Projeto():
         query = "SELECT COUNT(*) as count FROM projeto"
         result = self.db.execute_select_one(query)
         return result['count']
+    
+
+    def adicionar_projeto(
+        self,
+        empresa_nome,
+        titulo,
+        descricao=None,
+        complexidade=None,
+        modalidade=None,
+        orcamento_total=None,
+        orcamento_estudantes=None,
+        data_inicio=None,
+        prazo_entrega=None,
+        estado="ANALISE"
+    ):
+        query = """
+        INSERT INTO Projeto (
+            empresa_nome,
+            titulo,
+            descricao,
+            complexidade,
+            modalidade,
+            orcamento_total,
+            orcamento_estudantes,
+            data_inicio,
+            prazo_entrega,
+            estado
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING 
+            id,
+            empresa_nome,
+            titulo,
+            descricao,
+            complexidade,
+            modalidade,
+            orcamento_total,
+            orcamento_estudantes,
+            data_inicio,
+            prazo_entrega,
+            estado;
+        """
+
+        parametros = (
+            empresa_nome,
+            titulo,
+            descricao,
+            complexidade,
+            modalidade,
+            orcamento_total,
+            orcamento_estudantes,
+            data_inicio,
+            prazo_entrega,
+            estado
+        )
+
+        return self.db.execute_select_one(query, parametros)
+
