@@ -2,12 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { CreateProjectDTO } from "./types/create_project"
 
 async function createProject(data: CreateProjectDTO): Promise<void> {
-  console.log("Enviando dados para o backend:", data)
-
-  // --- SIMULAÇÃO (MOCK) ---
-  // Quando tiver o backend, descomente e ajuste a URL abaixo:
-  /*
-  const response = await fetch("http://localhost:8000/projetos", {
+  const response = await fetch("http://localhost:8000/projetos/adicionar_projeto", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -16,7 +11,6 @@ async function createProject(data: CreateProjectDTO): Promise<void> {
   if (!response.ok) {
     throw new Error("Erro ao criar projeto")
   }
-  */
 
   // Simula delay de rede
   return new Promise((resolve) => setTimeout(resolve, 1500))

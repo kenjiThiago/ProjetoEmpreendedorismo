@@ -12,7 +12,7 @@ class MembrosProjeto:
         estado: str = ""
     ):
         query = """
-        SELECT 
+        SELECT
             mp.id AS membro_id,
             mp.papel_no_projeto,
             mp.estado AS membro_estado,
@@ -26,12 +26,12 @@ class MembrosProjeto:
             e.universidade AS estudante_universidade,
             e.curso AS estudante_curso,
             e.semestre AS estudante_semestre
-        FROM 
+        FROM
             Membros_projeto mp
         LEFT JOIN Projeto p ON mp.projeto_id = p.id
         LEFT JOIN Estudante e ON mp.estudante_cpf = e.cpf
         """
-        
+
         filtros = []
 
         if projeto_id is not None:
@@ -40,10 +40,10 @@ class MembrosProjeto:
             filtros.append(f"mp.estudante_cpf = '{estudante_cpf}'")
         if estado:
             filtros.append(f"mp.estado = '{estado.upper()}'")
-        
+
         if filtros:
             query += " WHERE " + " AND ".join(filtros)
-        
+
         query += " ORDER BY p.id ASC"
 
         return self.db.execute_select_all(query)
@@ -52,7 +52,7 @@ class MembrosProjeto:
         query = "SELECT COUNT(*) as count FROM Membros_projeto"
         result = self.db.execute_select_one(query)
         return result['count']
-    
+
 
     def adicionar_membro(self, projeto_id, estudante_cpf, papel_no_projeto, estado="EM ANALISE"):
         query = """
@@ -64,6 +64,8 @@ class MembrosProjeto:
         parametros = (projeto_id, estudante_cpf, papel_no_projeto, estado)
 
         resultado = self.db.execute_select_one(query, parametros)
+        self.db.conn.commit()
+
         return resultado
 
 

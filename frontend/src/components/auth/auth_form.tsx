@@ -187,7 +187,7 @@ export function AuthForm({ mode, userType, plan = "Grátis" }: AuthFormProps) {
         url = `http://127.0.0.1:8000/login/${userType === "student" ? "estudante" : "empresa"}`
         body = { email: formData.email, password: formData.password }
       } else if (userType === "student") {
-        url = "http://127.0.0.1:8000/alunos"
+        url = "http://127.0.0.1:8000/estudantes/adicionar"
         body = {
           nome: formData.nome,
           email: formData.email,

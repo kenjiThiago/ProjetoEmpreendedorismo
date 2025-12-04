@@ -1,9 +1,11 @@
 from Database.conector import DatabaseManager
+from Database.classe_habilidades_projeto import HabilidadesProjeto
 
 class Projeto():
     def __init__(self, db_provider=DatabaseManager()) -> None:
         self.db = db_provider
-    
+        self.habilidades_model = HabilidadesProjeto(db_provider)
+
     def get_projetos(
         self,
         id: int = None,
@@ -19,7 +21,7 @@ class Projeto():
         estado: str = ""
     ):
         query = """
-        SELECT 
+        SELECT
             id,
             empresa_nome,
             titulo,
@@ -31,10 +33,10 @@ class Projeto():
             data_inicio,
             prazo_entrega,
             estado
-        FROM 
+        FROM
             projeto
         """
-        
+
         filtros = []
 
         if id is not None:
@@ -75,14 +77,26 @@ class Projeto():
 
         query += " ORDER BY id ASC"
 
-        return self.db.execute_select_all(query)
+        projetos = self.db.execute_select_all(query)
 
-    
+        # Injeta as habilidades em cada projeto encontrado
+        for projeto in projetos:
+            habilidades = self.habilidades_model.get_habilidades_por_projeto(projeto['id'])
+            projeto['habilidades'] = [
+                {
+                    "id_habilidade": h["id_habilidade"],
+                    "nome": h["habilidade_nome"]
+                } for h in habilidades
+            ]
+
+        return projetos
+
+
     def get_numero_projetos(self) -> int:
         query = "SELECT COUNT(*) as count FROM projeto"
         result = self.db.execute_select_one(query)
         return result['count']
-    
+
 
     def adicionar_projeto(
         self,
@@ -111,7 +125,7 @@ class Projeto():
             estado
         )
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        RETURNING 
+        RETURNING
             id,
             empresa_nome,
             titulo,
@@ -138,5 +152,7 @@ class Projeto():
             estado
         )
 
-        return self.db.execute_select_one(query, parametros)
+        resultado = self.db.execute_select_one(query, parametros)
+        self.db.conn.commit()
 
+        return resultado

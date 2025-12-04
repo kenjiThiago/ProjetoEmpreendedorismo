@@ -100,8 +100,12 @@ def adicionar_estudante():
 
         if ok:
             return jsonify({
-                "status": "sucesso",
-                "mensagem": "Estudante cadastrado com sucesso!"
+                "mensagem": "Login bem-sucedido",
+                "estudante": {
+                    "cpf": cpf,
+                    "nome": nome,
+                    "email": email,
+                }
             }), 201
         else:
             return jsonify({

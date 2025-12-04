@@ -7,8 +7,9 @@ import { DashboardPageContent } from "./pages/dashboard"
 import { CompanyPageContent } from "./pages/empresas"
 import { Home } from "./pages/home"
 import { PlanosPageContent } from "./pages/planos"
-import { Vagas } from "./pages/vagas"
+import { ProjectDetailsPage } from "./pages/project_details"
 import { TalentosPage } from "./pages/talentos"
+import { Vagas } from "./pages/vagas"
 
 const queryClient = new QueryClient()
 
@@ -44,6 +45,7 @@ export function App() {
 
             <Route element={<ProtectedDashboard />} path="/dashboard" />
             <Route element={<TalentosPage />} path="/talentos" />
+            <Route element={<ProjectDetailsPage />} path="/projetos/:id" />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

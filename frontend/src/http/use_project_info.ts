@@ -5,6 +5,7 @@ export interface ProjectFilters {
   search?: string // Mapearemos para 'titulo'
   complexity?: string // Mapearemos para 'complexidade'
   modality?: string // Mapearemos para 'modalidade'
+  status?: string // Mapearemos para 'estado'
 }
 
 interface ProjectsResponse {
@@ -25,6 +26,10 @@ async function fetchProjects(
   }
   if (filters.modality && filters.modality !== "Modalidade") {
     params.append("modalidade", filters.modality)
+  }
+  // Novo filtro de estado
+  if (filters.status && filters.status !== "Status" && filters.status !== "Todos") {
+    params.append("estado", filters.status)
   }
 
   const response = await fetch(
