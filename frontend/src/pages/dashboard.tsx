@@ -58,7 +58,6 @@ export function DashboardPageContent({
     const myProjectIds = new Set(
       student.projetos?.map((p: any) => p.projeto_id || p.id) || []
     )
-    console.log(myProjectIds)
 
     const candidates = marketProjects.projetos.filter(
       (p: any) =>
