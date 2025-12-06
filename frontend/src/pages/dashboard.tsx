@@ -56,22 +56,22 @@ export function DashboardPageContent({
     }
 
     const myProjectIds = new Set(
-      student.projetos?.map((p: any) => p.projeto_id || p.id) || []
+      student.projetos?.map((p) => p.projeto_id) || []
     )
 
     const candidates = marketProjects.projetos.filter(
-      (p: any) =>
+      (p) =>
         !myProjectIds.has(p.id) &&
         (p.estado === "BUSCANDO_EQUIPE")
     )
 
-    const scored = candidates.map((project: any) => ({
+    const scored = candidates.map((project) => ({
       ...project,
       matchScore: calculateMatchScore(student, project),
     }))
 
     return scored
-      .sort((a: any, b: any) => b.matchScore - a.matchScore)
+      .sort((a, b) => b.matchScore - a.matchScore)
       .slice(0, 6)
   }, [student, marketProjects])
 
@@ -158,7 +158,7 @@ export function DashboardPageContent({
                   className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
                   initial={{ opacity: 0, y: 10 }}
                 >
-                  {recommendedProjects.map((project: any, index: number) => (
+                  {recommendedProjects.map((project, index: number) => (
                     <ProjectCard
                       index={index}
                       key={project.id}

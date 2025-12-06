@@ -65,7 +65,9 @@ export function CompanyFilterBar({
 
   // Helper para formatar Complexidade (Capitalize)
   const formatComplexity = (level: string) => {
-    if (level === "Nível") return "Nível de Dificuldade"
+    if (level === "Nível") {
+      return "Nível de Dificuldade"
+    }
     // Transforma "BAIXA" em "Baixa", "MEDIA" em "Média", etc.
     const map: Record<string, string> = {
       BAIXA: "Baixa",
@@ -107,7 +109,7 @@ export function CompanyFilterBar({
   return (
     <section className="sticky top-[72px] z-30 border-gray-800/50 border-b bg-gray-900/50 backdrop-blur-lg transition-all">
       <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
+        <div className="flex flex-col items-start justify-between gap-36 lg:flex-row lg:items-center">
           <div className="flex flex-wrap items-center gap-4">
             <motion.button
               className="flex items-center space-x-2 rounded-lg bg-gray-800 px-4 py-2 text-white lg:hidden"

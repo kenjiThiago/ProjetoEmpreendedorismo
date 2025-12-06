@@ -132,13 +132,6 @@ export function CompanyCard({ company, viewMode, index }: CompanyCardProps) {
 
               <div className="flex gap-2">
                 <button
-                  className="btn-secondary flex items-center space-x-1 px-4 py-2 text-sm"
-                  type="button"
-                >
-                  <Eye className="h-4 w-4" />
-                  <span>Ver Perfil</span>
-                </button>
-                <button
                   className="btn-primary flex items-center space-x-1 px-4 py-2 text-sm"
                   type="button"
                 >
@@ -192,13 +185,6 @@ export function CompanyCard({ company, viewMode, index }: CompanyCardProps) {
       </div>
 
       <div className="flex gap-2">
-        <button
-          className="btn-secondary flex flex-1 items-center justify-center space-x-1 py-2 text-sm"
-          type="button"
-        >
-          <Eye className="h-4 w-4" />
-          <span>Ver Perfil</span>
-        </button>
         <button
           className="btn-primary flex flex-1 items-center justify-center space-x-1 py-2 text-sm"
           type="button"

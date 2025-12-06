@@ -23,14 +23,13 @@ async function fetchCompanyProfile(nome: string): Promise<CompanyProfile> {
   const projectsResponse = await fetch(
     `http://localhost:8000/projetos?empresa_nome=${nome}`
   )
-  if (projectsResponse.ok) {
-    const projectsData = await projectsResponse.json()
-    // Adiciona mock de contagem de candidatos se não vier do back
-    company.projetos = projectsData.projetos.map((p: any) => ({
-      ...p,
-      candidatos_count: Math.floor(Math.random() * 15), // Mock temporário
-    }))
+  if (!projectsResponse.ok) {
+    throw new Error("Falha ao carregar os projetos")
   }
+
+  const projectsData = await projectsResponse.json()
+
+  company.projetos = projectsData.projetos
 
   return company
 }

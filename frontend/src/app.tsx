@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom" // Adicione Navigate
 import { AuthProvider, useAuth } from "./contexts/auth_context" // Adicione useAuth
+import { AdminDashboard } from "./pages/admin_dashboard"
 import { AuthPage } from "./pages/auth"
 import { CompanyDashboard } from "./pages/company_dashboard"
 import { DashboardPageContent } from "./pages/dashboard"
@@ -46,6 +47,7 @@ export function App() {
             <Route element={<ProtectedDashboard />} path="/dashboard" />
             <Route element={<TalentosPage />} path="/talentos" />
             <Route element={<ProjectDetailsPage />} path="/projetos/:id" />
+            <Route element={<AdminDashboard />} path="/admin" />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

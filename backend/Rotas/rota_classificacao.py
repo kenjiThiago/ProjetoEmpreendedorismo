@@ -35,7 +35,7 @@ def consultar_gemini(titulo, descricao):
     {{
         "complexidade": "BAIXA" | "MEDIA" | "ALTA",
         "justificativa": "texto curto explicando",
-        "modalidade_sugerida": "ex: Web React, Mobile Flutter",
+        "modalidade_sugerida": "ex: Web React, Mobile Flutter" (não pode ter mais de 50 caracteres),
         "estimativa_dias": integer (número exato de dias sugeridos para entrega, seja realista)
     }}
     """

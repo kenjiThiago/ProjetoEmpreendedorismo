@@ -69,7 +69,7 @@ export function ProjectDetailsPage() {
 
     apply(
       {
-        projeto_id: Number(project?.id || project?.projeto_id),
+        projeto_id: Number(project?.id),
         estudante_cpf: user.cpf,
         papel_no_projeto: selectedRole,
       },

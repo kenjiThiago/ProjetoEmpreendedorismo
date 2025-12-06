@@ -1,7 +1,7 @@
 import type { ProjectStatus } from "./get_student_info"
 
 export interface CompanyProject {
-  projeto_id: number
+  id: number
   titulo: string
   descricao: string
   estado: ProjectStatus

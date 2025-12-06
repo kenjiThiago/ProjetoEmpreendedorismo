@@ -1,5 +1,7 @@
-import { BookOpen, Calendar, Code, User } from "lucide-react"
+import { BookOpen, Calendar, Code, Eye, User } from "lucide-react"
+import { useState } from "react"
 import type { Students } from "@/http/types/get_students_info"
+import { StudentProjectsModal } from "./student_projects_modal"
 
 interface StudentCardProps {
   student: Students
@@ -7,6 +9,8 @@ interface StudentCardProps {
 }
 
 export function StudentCard({ student, index }: StudentCardProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
   // Gera iniciais (ex: Agatha Aragão -> AA)
   const getInitials = (name: string) => {
     const parts = name.trim().split(" ")
@@ -16,7 +20,7 @@ export function StudentCard({ student, index }: StudentCardProps) {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
   }
 
-  // Helper para limpar a string de habilidade (ex: "C# - AVANCADO" -> "C#")
+  // Helper para limpar a string de habilidade
   const formatSkill = (rawSkill: string) => rawSkill.split("-")[0].trim()
 
   // Gerador de gradiente determinístico para o avatar
@@ -32,78 +36,90 @@ export function StudentCard({ student, index }: StudentCardProps) {
   }
 
   return (
-    <div className="group hover:-translate-y-1 relative flex flex-col overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 p-6 transition-all hover:border-gray-700 hover:shadow-xl">
-      {/* Header com Avatar e Papel */}
-      <div className="mb-6 flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <div
-            className={`flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br ${getGradient(index)} font-bold text-white text-xl shadow-lg`}
-          >
-            {getInitials(student.nome)}
-          </div>
-          <div>
-            <h3 className="font-bold text-lg text-white transition-colors group-hover:text-purple-400">
-              {student.nome}
-            </h3>
-            <span className="inline-block rounded border border-gray-700 bg-gray-800 px-2 py-0.5 font-medium text-gray-400 text-xs">
-              {student.papeis_projetos[0] || "Estudante"}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Informações Acadêmicas */}
-      <div className="mb-6 space-y-3 border-gray-800 border-b pb-6">
-        <div className="flex items-center gap-3 text-gray-400 text-sm">
-          <BookOpen className="h-4 w-4 text-purple-500" />
-          <span className="truncate">{student.curso}</span>
-        </div>
-        <div className="flex items-center gap-3 text-gray-400 text-sm">
-          <User className="h-4 w-4 text-blue-500" />
-          <span className="truncate">{student.universidade}</span>
-        </div>
-        <div className="flex items-center gap-3 text-gray-400 text-sm">
-          <Calendar className="h-4 w-4 text-orange-500" />
-          <span>{student.semestre}º Semestre</span>
-        </div>
-      </div>
-
-      {/* Habilidades (Tags) */}
-      <div className="mb-6 flex-1">
-        <div className="mb-2 flex items-center gap-2 text-gray-500 text-xs uppercase tracking-wider">
-          <Code className="h-3 w-3" />
-          <span>Principais Skills</span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {student.habilidades.slice(0, 4).map((skill, i) => (
-            <span
-              className="rounded-md border border-purple-500/20 bg-purple-500/10 px-2.5 py-1 font-medium text-purple-300 text-xs"
-              key={i}
+    <>
+      <div className="group hover:-translate-y-1 relative flex flex-col overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 p-6 transition-all hover:border-gray-700 hover:shadow-xl">
+        {/* Header com Avatar e Papel */}
+        <div className="mb-6 flex items-start justify-between">
+          <div className="flex items-center gap-4">
+            <div
+              className={`flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br ${getGradient(index)} font-bold text-white text-xl shadow-lg`}
             >
-              {formatSkill(skill)}
-            </span>
-          ))}
-          {student.habilidades.length > 4 && (
-            <span className="rounded-md bg-gray-800 px-2 py-1 text-gray-500 text-xs">
-              +{student.habilidades.length - 4}
-            </span>
-          )}
+              {getInitials(student.nome)}
+            </div>
+            <div>
+              <h3 className="font-bold text-lg text-white transition-colors group-hover:text-purple-400">
+                {student.nome}
+              </h3>
+              <span className="inline-block rounded border border-gray-700 bg-gray-800 px-2 py-0.5 font-medium text-gray-400 text-xs">
+                {student.papeis_projetos[0] || "Estudante"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Informações Acadêmicas */}
+        <div className="mb-6 space-y-3 border-gray-800 border-b pb-6">
+          <div className="flex items-center gap-3 text-gray-400 text-sm">
+            <BookOpen className="h-4 w-4 text-purple-500" />
+            <span className="truncate">{student.curso}</span>
+          </div>
+          <div className="flex items-center gap-3 text-gray-400 text-sm">
+            <User className="h-4 w-4 text-blue-500" />
+            <span className="truncate">{student.universidade}</span>
+          </div>
+          <div className="flex items-center gap-3 text-gray-400 text-sm">
+            <Calendar className="h-4 w-4 text-orange-500" />
+            <span>{student.semestre}º Semestre</span>
+          </div>
+        </div>
+
+        {/* Habilidades (Tags) */}
+        <div className="mb-6 flex-1">
+          <div className="mb-2 flex items-center gap-2 text-gray-500 text-xs uppercase tracking-wider">
+            <Code className="h-3 w-3" />
+            <span>Principais Skills</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {student.habilidades.slice(0, 4).map((skill, i) => (
+              <span
+                className="rounded-md border border-purple-500/20 bg-purple-500/10 px-2.5 py-1 font-medium text-purple-300 text-xs"
+                key={i}
+              >
+                {formatSkill(skill)}
+              </span>
+            ))}
+            {student.habilidades.length > 4 && (
+              <span className="rounded-md bg-gray-800 px-2 py-1 text-gray-500 text-xs">
+                +{student.habilidades.length - 4}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Footer: Projetos & Ação */}
+        <div className="mt-auto flex items-center justify-between border-gray-800 border-t pt-4">
+          <div className="text-gray-500 text-xs">
+            <strong className="text-white">{student.projetos.length}</strong>{" "}
+            projetos na plataforma
+          </div>
+
+          <button
+            className="flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 font-medium text-white text-xs transition-colors hover:bg-gray-700"
+            onClick={() => setIsModalOpen(true)}
+            type="button"
+          >
+            <Eye className="h-3 w-3" />
+            Ver Projetos
+          </button>
         </div>
       </div>
 
-      {/* Footer: Projetos & Ação */}
-      <div className="mt-auto flex items-center justify-between border-gray-800 border-t pt-4">
-        <div className="text-gray-500 text-xs">
-          <strong className="text-white">{student.projetos.length}</strong>{" "}
-          projetos entregues
-        </div>
-        <button
-          className="rounded-lg bg-white px-4 py-2 font-medium text-gray-900 text-sm transition-colors hover:bg-gray-200"
-          type="button"
-        >
-          Ver Perfil
-        </button>
-      </div>
-    </div>
+      <StudentProjectsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        projects={student.projetos}
+        studentName={student.nome}
+      />
+    </>
   )
 }
