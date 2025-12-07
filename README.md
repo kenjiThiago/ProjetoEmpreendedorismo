@@ -19,7 +19,7 @@ npm run build
 
 ### Iniciar o servidor frontend
 ```$
-npm run start
+npm run preview
 ```
 
 ## Como rodar o Backend
