@@ -1,4 +1,4 @@
-import { Briefcase, Eye, MapPin, Shield, Users } from "lucide-react"
+import { Briefcase, MapPin, Shield, Users } from "lucide-react"
 import type { GetCompanyInfo } from "@/http/types/get_companies_info"
 
 interface CompanyThumbnailProps {
