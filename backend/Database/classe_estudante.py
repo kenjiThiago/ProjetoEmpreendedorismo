@@ -1,11 +1,22 @@
 from Database.conector import DatabaseManager
 from datetime import date
 
+
 class Estudante:
     def __init__(self, db_provider=DatabaseManager()) -> None:
         self.db = db_provider
 
-    def get_estudantes(self, cpf=None, nome=None, email=None,senha=None,data_nascimento=None,universidade=None, curso=None, semestre=None):
+    def get_estudantes(
+        self,
+        cpf=None,
+        nome=None,
+        email=None,
+        senha=None,
+        data_nascimento=None,
+        universidade=None,
+        curso=None,
+        semestre=None,
+    ):
 
         query = """
         SELECT
@@ -37,7 +48,8 @@ class Estudante:
                         'projeto_id', p.id,
                         'titulo', p.titulo,
                         'empresa', p.empresa_nome,
-                        'estado', p.estado
+                        'estado', p.estado,
+                        'status_inscricao', mp.estado  -- NOVO CAMPO
                 )
             )
                 FROM Membros_projeto mp
@@ -98,7 +110,6 @@ class Estudante:
 
         return data
 
-
     def count_total(self):
         query = "SELECT COUNT(*) AS total FROM Estudante;"
         resultado = self.db.execute_select_one(query)
@@ -119,19 +130,30 @@ class Estudante:
             return dict(zip(columns, result))
         return None
 
-    def inserir_estudante(self, cpf, nome, email, senha, data_nascimento, universidade, curso, semestre):
+    def inserir_estudante(
+        self, cpf, nome, email, senha, data_nascimento, universidade, curso, semestre
+    ):
         query = """
         INSERT INTO estudante (cpf, nome, email, senha, data_nascimento, universidade, curso, semestre)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         try:
-            self.db.cursor.execute(query, (
-                cpf, nome, email, senha, data_nascimento, universidade, curso, semestre
-            ))
+            self.db.cursor.execute(
+                query,
+                (
+                    cpf,
+                    nome,
+                    email,
+                    senha,
+                    data_nascimento,
+                    universidade,
+                    curso,
+                    semestre,
+                ),
+            )
             self.db.conn.commit()
             return True
         except Exception as e:
             print("Erro ao inserir estudante:", e)
             self.db.conn.rollback()
             return False
-

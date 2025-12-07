@@ -1,5 +1,16 @@
 import { motion } from "framer-motion"
-import { AlertCircle, Briefcase, Eye, Search, Send, Upload } from "lucide-react"
+import {
+  AlertCircle,
+  Briefcase,
+  CheckCircle,
+  Clock,
+  Eye,
+  Search,
+  Send,
+  Upload,
+  UserCheck,
+  UserX,
+} from "lucide-react"
 import type {
   DashboardProject,
   ProjectStatus,
@@ -9,7 +20,6 @@ interface DashboardProjectsProps {
   projects: DashboardProject[]
   searchTerm: string
   selectedStatus: string
-  // selectedCategory removido pois o backend não retorna mais categoria
   onSearchChange: (v: string) => void
   onStatusChange: (v: string) => void
 }
@@ -21,8 +31,8 @@ export function DashboardProjects({
   onSearchChange,
   onStatusChange,
 }: DashboardProjectsProps) {
-  // Helper de Cor e Texto amigável baseado nos novos Status
-  const getStatusDisplay = (estado: ProjectStatus) => {
+  // Helper para Status do PROJETO (Situação Global)
+  const getProjectStatusDisplay = (estado: ProjectStatus) => {
     switch (estado) {
       case "CONCLUIDO":
         return { color: "bg-green-500", label: "Concluído", progress: "100%" }
@@ -45,19 +55,58 @@ export function DashboardProjects({
     }
   }
 
-  // Como o backend parou de mandar gradientes, geramos um determinístico pelo ID
+  // NOVO HELPER: Status do ALUNO (Cores refinadas e ícones contextuais)
+  const getMemberStatusDisplay = (status: string) => {
+    switch (status) {
+      case "ATIVO":
+        return {
+          // Verde suave para sucesso/ativo
+          color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+          icon: UserCheck,
+          label: "Aprovado no Squad",
+        }
+      case "EM ANALISE":
+        return {
+          // Amarelo/Laranja para espera
+          color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+          icon: Clock,
+          label: "Candidatura em Análise",
+        }
+      case "REMOVIDO":
+        return {
+          // Vermelho para erro/saída
+          color: "text-red-400 bg-red-500/10 border-red-500/20",
+          icon: UserX,
+          label: "Não Selecionado",
+        }
+      case "CONCLUIDO":
+        return {
+          // Azul/Indigo para finalização
+          color: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+          icon: CheckCircle,
+          label: "Participação Concluída",
+        }
+      default:
+        return {
+          color: "text-gray-400 bg-gray-500/10 border-gray-500/20",
+          icon: Briefcase,
+          label: status,
+        }
+    }
+  }
+
+  // Gera um gradiente visualmente idêntico ao da página de projetos
   const generateGradient = (id: number) => {
     const gradients = [
-      "from-orange-500 to-yellow-500",
-      "from-blue-500 to-cyan-500",
-      "from-purple-500 to-pink-500",
-      "from-green-500 to-emerald-500",
-      "from-red-500 to-pink-500",
+      "from-blue-900/40 to-purple-900/40",
+      "from-emerald-900/40 to-teal-900/40",
+      "from-orange-900/40 to-red-900/40",
+      "from-indigo-900/40 to-blue-900/40",
+      "from-pink-900/40 to-rose-900/40",
     ]
     return gradients[id % gradients.length]
   }
 
-  // Filtragem Local Atualizada
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
       project.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -82,7 +131,6 @@ export function DashboardProjects({
         </span>
       </div>
 
-      {/* --- Filtros --- */}
       <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 shadow-xl">
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="relative flex-1">
@@ -112,85 +160,105 @@ export function DashboardProjects({
         </div>
       </div>
 
-      {/* --- Lista --- */}
       {filteredProjects.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredProjects.map((project) => {
-            const statusInfo = getStatusDisplay(project.estado)
+          {filteredProjects.map((project: any) => {
+            const projectStatusInfo = getProjectStatusDisplay(project.estado)
+            const memberStatusInfo = getMemberStatusDisplay(
+              project.status_inscricao || "EM ANALISE"
+            )
+            const MemberIcon = memberStatusInfo.icon
             const gradient = generateGradient(project.projeto_id)
 
             return (
               <div
-                className="group hover:-translate-y-1 flex flex-col overflow-hidden rounded-xl border border-gray-800 bg-gray-900 transition-all hover:border-gray-700"
+                className="group hover:-translate-y-1 flex flex-col overflow-hidden rounded-xl border border-gray-800 bg-gray-900 transition-all hover:border-gray-700 hover:shadow-xl"
                 key={project.projeto_id}
               >
-                {/* Topo do Card */}
+                {/* --- HEADER DO CARD (GRADIENTE + BADGES) --- */}
                 <div
-                  className={`h-28 bg-linear-to-br ${gradient} relative p-4`}
+                  className={`h-32 bg-linear-to-br ${gradient} relative p-4`}
                 >
-                  <div className="absolute top-3 right-3 rounded border border-white/10 bg-black/40 px-2 py-0.5 font-bold text-[10px] text-white uppercase tracking-wider backdrop-blur-md">
-                    {statusInfo.label}
+                  {/* Badge de Status da Inscrição (Esquerda) */}
+                  <div
+                    className={`absolute top-3 left-3 flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-bold text-[10px] uppercase tracking-wider shadow-sm backdrop-blur-md ${memberStatusInfo.color} bg-gray-900/80`}
+                  >
+                    <MemberIcon className="h-3 w-3" />
+                    {memberStatusInfo.label}
                   </div>
-                  <div className="-bottom-6 absolute left-4 h-12 w-12 rounded-lg bg-gray-900 p-1">
-                    <div
-                      className={`flex h-full w-full items-center justify-center rounded bg-linear-to-br font-bold text-white ${gradient}`}
-                    >
+
+                  {/* Badge de Status do Projeto (Direita) */}
+                  <div className="absolute top-3 right-3 rounded border border-white/10 bg-black/40 px-2 py-0.5 font-bold text-[10px] text-white uppercase tracking-wider backdrop-blur-md">
+                    {projectStatusInfo.label}
+                  </div>
+
+                  {/* Logo da Empresa (Avatar Sobreposto) */}
+                  <div className="-bottom-6 absolute left-5 h-12 w-12 rounded-lg border border-gray-700 bg-gray-900 p-1 shadow-md">
+                    <div className="flex h-full w-full items-center justify-center rounded bg-gray-800 font-bold text-lg text-white">
                       {project.empresa.charAt(0)}
                     </div>
                   </div>
                 </div>
 
-                {/* Corpo */}
-                <div className="flex flex-1 flex-col px-5 pt-8 pb-5">
+                {/* --- CORPO DO CARD --- */}
+                <div className="flex flex-1 flex-col px-5 pt-10 pb-5">
                   <h3
-                    className="mt-8 mb-0.5 line-clamp-1 font-bold text-lg text-white"
+                    className="mb-1 line-clamp-1 font-bold text-lg text-white transition-colors group-hover:text-purple-400"
                     title={project.titulo}
                   >
                     {project.titulo}
                   </h3>
-                  <p className="mb-32 font-medium text-gray-500 text-xs uppercase">
-                    {project.empresa}
-                  </p>
 
-                  {/* Status Bar */}
-                  <div className="mb-6 h-1 w-full overflow-hidden rounded-full bg-gray-800">
-                    <div
-                      className={`h-full rounded-full ${statusInfo.color}`}
-                      style={{ width: statusInfo.progress }}
-                    />
+                  <div className="mb-4 flex items-center font-medium text-gray-500 text-xs uppercase tracking-wide">
+                    <Briefcase className="mr-1.5 h-3 w-3" />
+                    {project.empresa}
                   </div>
 
-                  {/* Botões de Ação baseados no Estado */}
-                  <div className="mt-auto">
+                  {/* Barra de Progresso */}
+                  <div className="mb-6 space-y-1.5">
+                    <div className="flex justify-between font-medium text-[10px] text-gray-400">
+                      <span>Progresso do Projeto</span>
+                      <span>{projectStatusInfo.progress}</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-800">
+                      <div
+                        className={`h-full rounded-full transition-all duration-1000 ${projectStatusInfo.color}`}
+                        style={{ width: projectStatusInfo.progress }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Botões de Ação */}
+                  <div className="mt-auto border-gray-800 border-t pt-4">
                     {project.estado === "CONCLUIDO" ? (
                       <button
-                        className="btn-secondary flex w-full items-center justify-center gap-2 py-2 text-sm"
+                        className="btn-secondary flex w-full items-center justify-center gap-2 py-2.5 text-sm transition-colors hover:text-white"
                         type="button"
                       >
-                        <Eye className="h-3.5 w-3.5" /> Ver Entrega
+                        <Eye className="h-4 w-4" /> Ver Entrega
                       </button>
                     ) : project.estado === "EM_ANDAMENTO" ||
                       project.estado === "REVISAO_QA" ? (
                       <button
-                        className="btn-primary flex w-full items-center justify-center gap-2 py-2 text-sm"
+                        className="btn-primary flex w-full items-center justify-center gap-2 py-2.5 text-sm shadow-lg shadow-purple-500/20"
                         type="button"
                       >
-                        <Upload className="h-3.5 w-3.5" /> Enviar Tarefa
+                        <Upload className="h-4 w-4" /> Enviar Tarefa
                       </button>
                     ) : project.estado === "CANCELADO" ? (
                       <button
-                        className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-red-900/50 bg-red-900/20 py-2 text-red-400 text-sm opacity-70"
+                        className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-red-900/50 bg-red-900/20 py-2.5 text-red-400 text-sm opacity-70"
                         disabled
                         type="button"
                       >
-                        <AlertCircle className="h-3.5 w-3.5" /> Cancelado
+                        <AlertCircle className="h-4 w-4" /> Cancelado
                       </button>
                     ) : (
                       <button
-                        className="btn-secondary flex w-full items-center justify-center gap-2 py-2 text-sm opacity-70 hover:opacity-100"
+                        className="btn-secondary flex w-full items-center justify-center gap-2 py-2.5 text-sm opacity-70 transition-all hover:bg-gray-800 hover:opacity-100"
                         type="button"
                       >
-                        <Send className="h-3.5 w-3.5" /> Ver Detalhes
+                        <Send className="h-4 w-4" /> Acompanhar Status
                       </button>
                     )}
                   </div>

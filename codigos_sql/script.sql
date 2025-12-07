@@ -62,3 +62,13 @@ CREATE TABLE Habilidades_projeto (
     id_habilidade   SERIAL REFERENCES Habilidade(id),
     PRIMARY KEY (id_projeto, id_habilidade)
 );
+
+CREATE TABLE Administrador (
+    id      SERIAL          PRIMARY KEY,
+    nome    VARCHAR(100)    NOT NULL,
+    email   VARCHAR(100)    UNIQUE NOT NULL,
+    senha   VARCHAR(100)    NOT NULL
+);
+
+INSERT INTO Administrador (nome, email, senha)
+VALUES ('Admin Master', 'admin@devstart.com', 'admin123');

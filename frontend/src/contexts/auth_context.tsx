@@ -6,28 +6,23 @@ import {
   useState,
 } from "react"
 
-// Interface unificada para o usuário (pode ter campos de aluno ou empresa)
 interface User {
   // Campos comuns
   nome: string
   email: string
 
-  // Campos de Estudante
+  // Campos específicos
   cpf?: string
-  universidade?: string
-  curso?: string
-
-  // Campos de Empresa
   cnpj?: string
-  setor?: string
-  porte?: string
+  id?: number // ID do admin
 }
 
-export type UserType = "student" | "company"
+// Adicionado 'admin'
+export type UserType = "student" | "company" | "admin"
 
 interface AuthContextType {
   user: User | null
-  userType: UserType | null // Novo campo
+  userType: UserType | null
   isAuthenticated: boolean
   login: (userData: User, token: string, type: UserType) => void
   logout: () => void
@@ -42,7 +37,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Recupera dados ao carregar a página
     const storedUser = localStorage.getItem("user_data")
     const storedType = localStorage.getItem("user_type") as UserType
     const token = localStorage.getItem("authToken")
@@ -64,11 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
-    localStorage.removeItem("user_data")
-    localStorage.removeItem("user_type")
-    localStorage.removeItem("authToken")
-    localStorage.removeItem("aluno") // Limpeza legado
-
+    localStorage.clear()
     setUser(null)
     setUserType(null)
   }
